@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Ben Orchard, 01/11/13
+# I love that regex, it's so scary-looking.
+# Firstly, -maxdepth and -mindepth make sure we are -only- looking in the
+# present directory. -type f looks only for files. Then, the regex:
+#	"\./"	: = "./", needed because of how find 'finds' files
+#	".+"	: file must have at least 1 character other than...
+#	"~$"	: tilde at the end of the file name.
+# This means that the file "~" will not match. "~~" will, however.
+
+# Ben Orchard, 02/11/13
+# Added -f option for no prompting.
+
+# Ben Orchard, 04/11/13
+#	- use getopts to parse options
+#	- add new option -r = recursive, searches subdirectories. Nasty find
+#	permissions errors and rm failures are recorded & echoed 'manually'.
+
+tilde_files=`find . -maxdepth 1 -mindepth 1 -type f -regex "\./.+~$"`
+
+while getopts "fr" opt; do
+	case $opt in
+		f) # force, no prompt
+			no_prompt=true
+			;;
+		r) # recursive
+
+			tilde_files=`find . -mindepth 1 -type f -regex "\./.+~$"`
+			;;
+	esac			
+done
+
+if [[ -z ${tilde_files} ]]; then # if is null (none found)
+	echo "No tilde files found."
+	exit 1
+else
+	for file in ${tilde_files}
+	do
+		if [ ${no_prompt} ]; then
+			rm_err="$(rm -f ${file} 2>&1 1> /dev/null)"
+			if [ $? -eq 0 ]; then
+				echo "${file} removed successfully"
+			else
+				echo "${file} not removed: ${rm_err}"
+			fi
+			continue
+		fi
+		read -n 1 -p "Remove '${file}'? (y/n): " yn
+		if [ "$yn" == "y" ]; then
+			rm -f ${file} 2> /dev/null
+			if [ $? -ne 0 ]; then
+				echo
+				echo -n "rm had an error. Continuing."
+			fi
+		else
+			echo
+			echo -en "Not removing ${file}."
+		fi
+	echo
+	done
+fi
