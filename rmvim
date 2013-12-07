@@ -1,23 +1,11 @@
 #!/bin/bash
 
-# Ben Orchard, 01/11/13
-# I love that regex, it's so scary-looking.
-# Firstly, -maxdepth and -mindepth make sure we are -only- looking in the
-# present directory. -type f looks only for files. Then, the regex:
+#	REGEX EXPLANATION
 #	"\./"	: = "./", needed because of how find 'finds' files
-#	".+"	: file must have at least 1 character other than...
-#	"~$"	: tilde at the end of the file name.
-# This means that the file "~" will not match. "~~" will, however.
-
-# Ben Orchard, 02/11/13
-# Added -f option for no prompting.
-
-# Ben Orchard, 04/11/13
-#	- use getopts to parse options
-#	- add new option -r = recursive, searches subdirectories. Nasty find
-#	permissions errors and rm failures are recorded & echoed 'manually'.
-
-tilde_files=`find . -maxdepth 1 -mindepth 1 -type f -regex "\./.+~$"`
+#	".+"	: file must have at least 1 character other than '~'
+#		  This means that the file "~" will not match. "~~" will,
+#		  however.
+#	"~$"	: tilde at the end of the file name
 
 while getopts "fr" opt; do
 	case $opt in
@@ -25,14 +13,19 @@ while getopts "fr" opt; do
 			no_prompt=true
 			;;
 		r) # recursive
-
-			tilde_files=`find . -mindepth 1 -type f -regex "\./.+~$"`
+			tilde_files=true
 			;;
 	esac			
 done
 
+if [ $is_recursive ]; then
+	tilde_files=`find . -mindepth 1 -type f -regex "\./.+~$"`
+else
+	tilde_files=`find . -maxdepth 1 -mindepth 1 -type f -regex "\./.+~$"`
+fi
+
 if [[ -z ${tilde_files} ]]; then # if is null (none found)
-	echo "No tilde files found."
+	echo "No ~ files found."
 	exit 1
 else
 	for file in ${tilde_files}
