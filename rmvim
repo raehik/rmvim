@@ -33,22 +33,20 @@ fi
 
 for file in ${tilde_files}; do
 	if [ ! $is_force ]; then
-		read -n 1 -p "Remove '${file}'? (y/n): " yn
+		read -n 1 -p "rmvim: remove ‘${file}’? " yn
+		echo
 	fi
 
-	if [ $yn == 'y' ] || [ $is_force ]; then
+	if [[ $yn == 'y' ]] || [ $is_force ]; then
 		rm -f ${file}
 		exit_code=$?
 	fi
 
 	if [ $is_verbose ]; then
-		if [ $yn == 'y' ] || [ $is_force ]; then
+		if [[ $yn == 'y' ]] || [ $is_force ]; then
 			if [ $exit_code -eq 0 ]; then
 				echo "removed ‘${file}’"
-			else
-				echo "rm had an error: exit code $exit_code"
 			fi
 		fi
 	fi
-	echo
 done
