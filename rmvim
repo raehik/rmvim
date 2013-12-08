@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#	REGEX EXPLANATION
 #	"\./"	: = "./", needed because of how find 'finds' files
 #	".+"	: file must have at least 1 character other than '~'
 #		  This means that the file "~" will not match. "~~" will,
@@ -13,7 +12,7 @@ while getopts "fr" opt; do
 			no_prompt=true
 			;;
 		r) # recursive
-			tilde_files=true
+			is_recursive=true
 			;;
 	esac			
 done
