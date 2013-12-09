@@ -32,8 +32,7 @@ fi
 
 for file in ${tilde_files}; do
 	if [ ! $is_force ]; then
-		read -n 1 -p "rmvim: remove ‘${file}’? " yn
-		echo
+		read -p "rmvim: remove ‘${file}’? " yn
 	fi
 
 	if [[ $yn == 'y' ]] || [ $is_force ]; then
