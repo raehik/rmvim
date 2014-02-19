@@ -30,7 +30,7 @@ if [[ -z "${tilde_files}" ]]; then # if is null (none found)
 	exit 1
 fi
 
-for file in "${tilde_files}"; do
+for file in ${tilde_files}; do
 	if [ ! $is_force ]; then
 		read -p "rmvim: remove ‘${file}’? " yn
 	fi
