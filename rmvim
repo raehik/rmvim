@@ -1,9 +1,10 @@
 #!/bin/bash
-
-#	"\./"	: needed because of how find prints files
+#	"\."	: needed because of how find prints files ('\' escapes '.')
+#	"/"	: needed because of how find prints files
 #	".+"	: file must have at least 1 character other than '~'
 #		  (i.e. '~' will not match, but "~~" will
 #	"~$"	: tilde at the end of the file name
+IFS=$'\n'
 
 while getopts "frv" opt; do
 	case $opt in
@@ -20,30 +21,31 @@ while getopts "frv" opt; do
 done
 
 if [ $is_recursive ]; then
-	tilde_files=`find . -mindepth 1 -type f -regex "\./.+~$"`
+	tilde_files="`find . -mindepth 1 -type f -regex "\./.+~$"`"
 else
-	tilde_files=`find . -maxdepth 1 -mindepth 1 -type f -regex "\./.+~$"`
+	tilde_files="`find . -maxdepth 1 -mindepth 1 -type f -regex "\./.+~$"`"
 fi
 
-if [[ -z "${tilde_files}" ]]; then # if is null (none found)
+if [[ -z "$tilde_files" ]]; then # if is null (none found)
 	echo "No ~ files found."
 	exit 1
 fi
 
-for file in ${tilde_files}; do
+for file in `echo "$tilde_files"`; do	# for some reason `echo $foo` is
+					# necessary for the IFS to do things
 	if [ ! $is_force ]; then
-		read -p "rmvim: remove ‘${file}’? " yn
+		read -p "rmvim: remove ‘$file’? " yn
 	fi
 
 	if [[ $yn == 'y' ]] || [ $is_force ]; then
-		rm -f "${file}"
+		rm "$file"
 		exit_code=$?
 	fi
 
 	if [ $is_verbose ]; then
 		if [[ $yn == 'y' ]] || [ $is_force ]; then
 			if [ $exit_code -eq 0 ]; then
-				echo "removed ‘${file}’"
+				echo "removed ‘$file’"
 			fi
 		fi
 	fi
