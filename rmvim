@@ -5,6 +5,8 @@
 #		  (i.e. '~' will not match, but "~~" will
 #	"~$"	: tilde at the end of the file name
 IFS=$'\n'
+file_count=0
+removed_count=0
 
 while getopts "frv" opt; do
 	case $opt in
@@ -33,11 +35,13 @@ fi
 
 for file in `echo "$tilde_files"`; do	# for some reason `echo $foo` is
 					# necessary for the IFS to do things
+	file_count=$((file_count+1))
 	if [ ! $is_force ]; then
 		read -p "rmvim: remove ‘$file’? " yn
 	fi
 
 	if [[ $yn == 'y' ]] || [ $is_force ]; then
+		removed_count=$((removed_count+1))
 		rm "$file"
 		exit_code=$?
 	fi
@@ -50,3 +54,6 @@ for file in `echo "$tilde_files"`; do	# for some reason `echo $foo` is
 		fi
 	fi
 done
+
+echo "~ files found: $file_count"
+echo "~ files removed: $removed_count"
