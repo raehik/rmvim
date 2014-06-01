@@ -24,6 +24,13 @@ If [directory] is present, ${0##*/} will start from it.
 EOF
 }
 
+# TODO: this is super unneat:
+#           - use `rm -v` instead of my own dumb shit
+#           - space it out a little
+#           - num_files and num_removed should be their own option (-c count)
+#           - later, fix find and stuff to remove -any- file, including ones
+#             with newlines in - if not possible, fine
+
 IFS=$'\n'
 num_files=0
 num_removed=0
