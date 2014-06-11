@@ -54,9 +54,15 @@ while getopts "frvh" opt; do
 	esac			
 done
 
-shift $((OPTIND-1))
+shift $((OPTIND-1)) # 'reset' (?) options after getopts has finished
 if [ $1 ]; then
+    if [ -d "$1" ]; then
         cd $1
+    else
+        echo "${0##*/}: error: argument 1 is not a directory"
+        usage
+        exit 2
+    fi
 fi
 
 if [ $is_recursive ]; then
