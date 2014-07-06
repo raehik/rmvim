@@ -17,6 +17,7 @@ ${0##*/} exits successfully if it finds no files to remove.
 If [directory] is present, ${0##*/} will start from it.
 
   Options:
+    -f              force remove (no prompt)
     -r              recurse through directories
     -h              display this help message
 EOF
@@ -33,7 +34,7 @@ IFS=$'\n'
 num_files=0
 num_removed=0
 
-while getopts "frch" opt; do
+while getopts "frh" opt; do
 	case $opt in
 		f) # force, no prompt
 			is_force=true
