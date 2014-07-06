@@ -17,9 +17,7 @@ ${0##*/} exits successfully if it finds no files to remove.
 If [directory] is present, ${0##*/} will start from it.
 
   Options:
-    -f              force remove without prompting
     -r              recurse through directories
-    -v              be verbose (show files removed)
     -h              display this help message
 EOF
 }
@@ -35,7 +33,7 @@ IFS=$'\n'
 num_files=0
 num_removed=0
 
-while getopts "frvh" opt; do
+while getopts "frch" opt; do
 	case $opt in
 		f) # force, no prompt
 			is_force=true
@@ -44,9 +42,6 @@ while getopts "frvh" opt; do
 		r) # recurse through directories
 			is_recursive=true
 			;;
-		v) # be verbose
-		 	is_verbose=true
-            ;;
         h) # display usage message
             usage
             exit 0
@@ -55,13 +50,19 @@ while getopts "frvh" opt; do
 done
 
 shift $((OPTIND-1)) # 'reset' (?) options after getopts has finished
-if [ $1 ]; then
+if [ -n "$1" ]; then
     if [ -d "$1" ]; then
-        cd $1
+        cd "$1"
     else
-        echo "${0##*/}: error: argument 1 is not a directory"
-        usage
-        exit 2
+        if [ ! -f "$1" ]; then
+            echo "${0##*/}: error: argument 1 does not exist"
+            usage
+            exit 1
+        elif [ ! -d "$1" ]; then
+            echo "${0##*/}: error: argument 1 is not a directory"
+            usage
+            exit 1
+        fi
     fi
 fi
 
@@ -80,23 +81,5 @@ fi
 
 for file in `echo "$tilde_files"`; do
     # IFS requires `echo $foo` for whatever reason to work
-	num_files=$((num_files+1))
-	if [ ! $is_force ]; then
-		read -p "${0##*/}: remove ‘$file’? " yn
-	fi
-
-	if [[ $yn == 'y' ]] || [ $is_force ]; then
-		rm "$file"
-		if [ $? -eq 0 ]; then
-			num_removed=$((num_removed+1))
-			if [ $is_verbose ]; then
-				echo "${0##*/}: removed ‘$file’"
-			fi
-		fi
-	fi
+    rm -i "$file"
 done
-
-if [ $is_verbose ]; then
-    echo "${0##*/}: ~ files found: $num_files"
-    echo "${0##*/}: ~  files removed: $num_removed"
-fi
